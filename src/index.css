@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --luxury-terracotta: #C17767;
+  --luxury-sage: #8AA399;
+  --luxury-cream: #F9F7F2;
+  --luxury-navy: #1A2238;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom smooth scroll behavior if needed, but we'll use Lenis */
+
+.glass {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.timeline-line {
+  background: linear-gradient(to bottom, transparent, var(--luxury-navy) 10%, var(--luxury-navy) 90%, transparent);
+}
