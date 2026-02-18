@@ -1,6 +1,5 @@
 import React from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
-import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PhotoCarouselProps {
@@ -24,17 +23,41 @@ export const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ photos }) => {
     onSelect();
     emblaApi.on('select', onSelect);
     emblaApi.on('reInit', onSelect);
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
+    };
   }, [emblaApi, onSelect]);
 
+  const onCarouselKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      scrollPrev();
+    }
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      scrollNext();
+    }
+  };
+
   return (
-    <div className="relative group overflow-hidden rounded-2xl">
+    <div
+      className="relative group overflow-hidden rounded-2xl"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Trip photos"
+      tabIndex={0}
+      onKeyDown={onCarouselKeyDown}
+    >
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
           {photos.map((photo, index) => (
             <div key={index} className="flex-[0_0_100%] min-w-0 relative h-[400px]">
-              <img 
-                src={photo} 
+              <img
+                src={photo}
                 alt={`Trip photo ${index + 1}`}
+                loading={index === 0 ? 'eager' : 'lazy'}
+                decoding="async"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -44,15 +67,17 @@ export const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ photos }) => {
       </div>
 
       {/* Navigation Buttons */}
-      <button 
+      <button
         onClick={scrollPrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/40"
+        className="absolute left-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white opacity-0 backdrop-blur-md transition-opacity hover:bg-white/40 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        aria-label="Previous photo"
       >
         <ChevronLeft size={20} />
       </button>
-      <button 
+      <button
         onClick={scrollNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/40"
+        className="absolute right-4 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-white opacity-0 backdrop-blur-md transition-opacity hover:bg-white/40 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        aria-label="Next photo"
       >
         <ChevronRight size={20} />
       </button>
@@ -60,15 +85,16 @@ export const PhotoCarousel: React.FC<PhotoCarouselProps> = ({ photos }) => {
       {/* Pagination Dots */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
         {photos.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => emblaApi?.scrollTo(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              index === selectedIndex ? 'bg-white w-6' : 'bg-white/40'
-            }`}
-          />
-        ))}
-      </div>
+              <button
+                key={index}
+                onClick={() => emblaApi?.scrollTo(index)}
+                aria-label={`Go to photo ${index + 1}`}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === selectedIndex ? 'bg-white w-6' : 'bg-white/40'
+                } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white`}
+              />
+            ))}
+          </div>
     </div>
   );
 };

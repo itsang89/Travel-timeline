@@ -1,5 +1,6 @@
 import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { useInView } from 'react-intersection-observer';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -24,24 +25,38 @@ interface TripMapProps {
 }
 
 export const TripMap: React.FC<TripMapProps> = ({ coordinates, location }) => {
+  const { ref, inView } = useInView({ triggerOnce: true, rootMargin: '180px 0px' });
+
   return (
-    <div className="h-[250px] w-full rounded-2xl overflow-hidden border border-luxury-navy/5 relative z-0">
-      <MapContainer 
-        center={coordinates} 
-        zoom={10} 
-        scrollWheelZoom={false}
-        className="h-full w-full"
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        />
-        <Marker position={coordinates}>
-          <Popup>
-            <span className="font-sans font-bold">{location}</span>
-          </Popup>
-        </Marker>
-      </MapContainer>
+    <div
+      ref={ref}
+      className="h-[250px] w-full relative z-0 overflow-hidden rounded-2xl border border-luxury-navy/5"
+      aria-label={`Map for ${location}`}
+    >
+      {inView ? (
+        <MapContainer
+          center={coordinates}
+          zoom={10}
+          scrollWheelZoom={false}
+          className="h-full w-full"
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          />
+          <Marker position={coordinates}>
+            <Popup>
+              <span className="font-sans font-bold">{location}</span>
+            </Popup>
+          </Marker>
+        </MapContainer>
+      ) : (
+        <div className="flex h-full items-center justify-center bg-luxury-cream">
+          <span className="font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-luxury-navy/50">
+            Loading map...
+          </span>
+        </div>
+      )}
     </div>
   );
 };

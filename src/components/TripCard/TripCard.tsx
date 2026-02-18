@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Clock } from 'lucide-react';
 import { Trip } from '@/data/trips';
+import { DistanceUnit, distanceLabel } from '@/data/tripMetrics';
 import { PhotoCarousel } from './PhotoCarousel';
 import { TripMap } from './TripMap';
 import { ExpenseDonut } from './ExpenseDonut';
@@ -9,11 +10,25 @@ import { WeatherWidget } from './WeatherWidget';
 
 interface TripCardProps {
   trip: Trip;
-  index: number;
   isLeft: boolean;
+  layoutMode: 'alternating' | 'stacked';
+  legDistanceKm: number;
+  distanceUnit: DistanceUnit;
+  compareSelected: boolean;
+  compareDisabled: boolean;
+  onToggleCompare: (tripId: string) => void;
 }
 
-export const TripCard: React.FC<TripCardProps> = ({ trip, index, isLeft }) => {
+export const TripCard: React.FC<TripCardProps> = ({
+  trip,
+  isLeft,
+  layoutMode,
+  legDistanceKm,
+  distanceUnit,
+  compareSelected,
+  compareDisabled,
+  onToggleCompare,
+}) => {
   return (
     <motion.div
       layout
@@ -27,11 +42,19 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, index, isLeft }) => {
         duration: 0.8, 
         ease: [0.22, 1, 0.36, 1] 
       }}
-      className={`relative w-full md:w-[calc(50%-40px)] ${isLeft ? 'md:mr-auto' : 'md:ml-auto'}`}
+      className={`relative w-full ${
+        layoutMode === 'stacked'
+          ? 'md:w-full'
+          : `md:w-[calc(50%-40px)] ${isLeft ? 'md:mr-auto' : 'md:ml-auto'}`
+      }`}
     >
       {/* Timeline Node Connector */}
-      <div className={`absolute top-10 hidden md:block w-10 h-[2px] bg-luxury-terracotta z-10 ${isLeft ? '-right-10' : '-left-10'}`} />
-      <div className={`absolute top-[34px] hidden md:block w-4 h-4 rounded-full border-2 border-luxury-terracotta bg-luxury-cream z-20 ${isLeft ? '-right-[48px]' : '-left-[48px]'}`} />
+      {layoutMode === 'alternating' && (
+        <>
+          <div className={`absolute top-10 hidden md:block w-10 h-[2px] bg-luxury-terracotta z-10 ${isLeft ? '-right-10' : '-left-10'}`} />
+          <div className={`absolute top-[34px] hidden md:block w-4 h-4 rounded-full border-2 border-luxury-terracotta bg-luxury-cream z-20 ${isLeft ? '-right-[48px]' : '-left-[48px]'}`} />
+        </>
+      )}
 
       <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl shadow-luxury-navy/5 border border-luxury-navy/5 group/card transition-all duration-500 hover:shadow-luxury-navy/10 hover:-translate-y-2">
         {/* Carousel Section */}
@@ -55,8 +78,31 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, index, isLeft }) => {
                   <Clock size={14} className="text-luxury-navy/40" />
                   <span className="font-sans text-[10px] font-bold text-luxury-navy/80 uppercase tracking-widest">{trip.duration}</span>
                 </div>
+                {legDistanceKm > 0 && (
+                  <div className="flex items-center gap-2 bg-luxury-sage/10 px-4 py-2 rounded-full">
+                    <span className="font-sans text-[10px] font-bold text-luxury-sage uppercase tracking-widest">
+                      Route Leg {distanceLabel(legDistanceKm, distanceUnit)}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
+            <button
+              type="button"
+              onClick={() => onToggleCompare(trip.id)}
+              disabled={compareDisabled}
+              aria-pressed={compareSelected}
+              className={`rounded-full border px-4 py-2 font-sans text-[10px] uppercase tracking-[0.2em] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-terracotta ${
+                compareSelected
+                  ? 'border-luxury-terracotta bg-luxury-terracotta text-white'
+                  : 'border-luxury-navy/20 text-luxury-navy hover:border-luxury-terracotta hover:text-luxury-terracotta disabled:cursor-not-allowed disabled:opacity-40'
+              }`}
+              aria-label={`${
+                compareSelected ? 'Remove' : 'Add'
+              } ${trip.destination} ${compareSelected ? 'from' : 'to'} comparison`}
+            >
+              {compareSelected ? 'Selected' : 'Compare'}
+            </button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">

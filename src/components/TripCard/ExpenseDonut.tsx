@@ -1,5 +1,5 @@
 import React from 'react';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, type TooltipItem } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -34,9 +34,9 @@ export const ExpenseDonut: React.FC<ExpenseDonutProps> = ({ expenses, totalCost 
       },
       tooltip: {
         callbacks: {
-          label: (context: any) => {
+          label: (context: TooltipItem<'doughnut'>) => {
             const label = context.label || '';
-            const value = context.raw || 0;
+            const value = typeof context.raw === 'number' ? context.raw : Number(context.raw ?? 0);
             const percentage = ((value / totalCost) * 100).toFixed(1);
             return `${label}: $${value} (${percentage}%)`;
           }

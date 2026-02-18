@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, Cloud, CloudRain, Thermometer, Leaf, Snowflake } from 'lucide-react';
+import { Sun, Cloud, CloudRain, Leaf, Snowflake } from 'lucide-react';
 
 interface WeatherWidgetProps {
   temp: number;

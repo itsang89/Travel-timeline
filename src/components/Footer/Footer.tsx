@@ -2,7 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Instagram, Twitter, Facebook, ArrowUpRight } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onAddTripClick: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onAddTripClick }) => {
   return (
     <footer className="bg-luxury-navy text-luxury-cream py-24 px-6">
       <div className="max-w-7xl mx-auto">
@@ -18,6 +22,7 @@ export const Footer: React.FC = () => {
             <motion.button
               whileHover={{ scale: 1.05, backgroundColor: '#D48979' }}
               whileTap={{ scale: 0.95 }}
+              onClick={onAddTripClick}
               className="px-10 py-5 bg-luxury-terracotta text-white rounded-full font-sans text-sm uppercase tracking-widest font-bold flex items-center gap-3 group transition-all duration-300"
             >
               Add New Trip
